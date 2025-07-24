@@ -1,0 +1,30 @@
+name: Build Flutter APK & Send to Telegram
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.13.0'
+
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - name: Upload Artifact (APK)
+        uses: actions/upload-artifact@v3
+        with:
+          name: screen_recorder_apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Send APK to Telegram
+        run: |
+          curl -F document=@build/app/outputs/flutter-apk/app-release.apk \
+               https://api.telegram.org/bot8192166861:AAF0NKIqVgK9z0mXqyaXzFFU9YRiZGHjPjw/sendDocument?chat_id=1753334893
+
